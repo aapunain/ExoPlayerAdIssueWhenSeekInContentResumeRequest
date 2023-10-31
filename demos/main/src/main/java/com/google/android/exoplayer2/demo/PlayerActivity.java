@@ -380,7 +380,7 @@ public class PlayerActivity extends AppCompatActivity
     return mediaItems;
   }
 
-  private static final String TAG = "nain";
+  private static final String TAG = "PlayerActivity";
 
   private AdsLoader getClientSideAdsLoader(MediaItem.AdsConfiguration adsConfiguration) {
     // The ads loader is reused for multiple playbacks, so that ad playback can resume.

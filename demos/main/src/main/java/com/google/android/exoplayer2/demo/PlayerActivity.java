@@ -19,6 +19,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.View;
@@ -29,6 +30,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.ads.interactivemedia.v3.api.AdEvent;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
@@ -378,10 +380,31 @@ public class PlayerActivity extends AppCompatActivity
     return mediaItems;
   }
 
+  private static final String TAG = "nain";
+
   private AdsLoader getClientSideAdsLoader(MediaItem.AdsConfiguration adsConfiguration) {
     // The ads loader is reused for multiple playbacks, so that ad playback can resume.
     if (clientSideAdsLoader == null) {
-      clientSideAdsLoader = new ImaAdsLoader.Builder(/* context= */ this).build();
+      clientSideAdsLoader = new ImaAdsLoader.Builder(/* context= */ this)
+          .setAdEventListener(new AdEvent.AdEventListener() {
+            @Override
+            public void onAdEvent(AdEvent adEvent) {
+              if (adEvent.getType() != AdEvent.AdEventType.AD_PROGRESS) {
+                Log.i(TAG, "onAdEvent : " + adEvent.getType());
+              }
+              if (player != null && adEvent.getType() != null
+                  && adEvent.getType() == AdEvent.AdEventType.CONTENT_RESUME_REQUESTED) {
+                if (player.getCurrentPosition() == 0) {
+                  Log.i(TAG, "onAdEvent expected 1: ");
+                  player.seekTo(player.getCurrentPosition());
+                } else {
+                  Log.i(TAG, "onAdEvent expected 2: ");
+                  player.seekTo(player.getCurrentPosition() + 500);
+                }
+              }
+            }
+          }).
+          build();
     }
     clientSideAdsLoader.setPlayer(player);
     return clientSideAdsLoader;

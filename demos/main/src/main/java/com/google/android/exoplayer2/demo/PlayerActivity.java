@@ -31,6 +31,8 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.ads.interactivemedia.v3.api.AdEvent;
+import com.google.ads.interactivemedia.v3.api.ImaSdkFactory;
+import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
@@ -385,6 +387,8 @@ public class PlayerActivity extends AppCompatActivity
   private AdsLoader getClientSideAdsLoader(MediaItem.AdsConfiguration adsConfiguration) {
     // The ads loader is reused for multiple playbacks, so that ad playback can resume.
     if (clientSideAdsLoader == null) {
+      ImaSdkSettings imaSdkSettings = ImaSdkFactory.getInstance().createImaSdkSettings();
+      imaSdkSettings.setDebugMode(true);
       clientSideAdsLoader = new ImaAdsLoader.Builder(/* context= */ this)
           .setAdEventListener(new AdEvent.AdEventListener() {
             @Override
@@ -403,8 +407,9 @@ public class PlayerActivity extends AppCompatActivity
                 }
               }
             }
-          }).
-          build();
+          })
+          .setImaSdkSettings(imaSdkSettings)
+          .build();
     }
     clientSideAdsLoader.setPlayer(player);
     return clientSideAdsLoader;
